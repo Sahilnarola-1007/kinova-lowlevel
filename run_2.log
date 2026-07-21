@@ -1,0 +1,51 @@
+Connecting to Gen3 at 192.168.1.10 ...
+Sessions established (TCP + UDP)
+Faults cleared
+Joint index 6 hold position: 90.03 deg
+Sinusoid: A=5.00 deg, f=0.20 Hz, peak vel=6.28 deg/s, peak step=0.00628 deg/cycle (guard 0.05000)
+
+Starting sinusoid tracking loop (10000 cycles, ~10 seconds)...
+
+[cycle     0]  meas=90.026  ideal=90.026  err=0.0000  gap=0.0063 | work: 469 us
+[cycle  1000]  meas=94.757  ideal=94.781  err=0.0247  gap=0.0288 | work: 326 us
+[cycle  2000]  meas=93.050  ideal=92.965  err=-0.0852  gap=-0.0846 | work: 358 us
+[cycle  3000]  meas=87.160  ideal=87.087  err=-0.0731  gap=-0.0725 | work: 415 us
+[cycle  4000]  meas=85.241  ideal=85.271  err=0.0293  gap=0.0335 | work: 455 us
+[cycle  5000]  meas=89.932  ideal=90.026  err=0.0936  gap=0.0999 | work: 459 us
+[cycle  6000]  meas=94.756  ideal=94.781  err=0.0252  gap=0.0293 | work: 373 us
+[cycle  7000]  meas=93.049  ideal=92.965  err=-0.0846  gap=-0.0840 | work: 307 us
+[cycle  8000]  meas=87.155  ideal=87.087  err=-0.0682  gap=-0.0676 | work: 335 us
+[cycle  9000]  meas=85.241  ideal=85.271  err=0.0294  gap=0.0335 | work: 361 us
+
+Loop finished. Cleaning up...
+
+========== TIMING SUMMARY ==========
+
+--- Cycle-to-cycle dt (should be ~1000 us) ---
+  Cycles:          9999
+  Mean:            1000.0 us
+  Min:             206.3 us
+  Max:             6036.3 us
+  Stddev:          297.8 us
+  Misses (>1.1ms): 295 (2.95%)
+
+--- Work time per cycle (Refresh() round-trip) ---
+  Cycles:          10000
+  Mean:            423.8 us
+  Min:             195.1 us
+  Max:             6029.4 us
+  Stddev:          256.7 us
+  Misses (>1.1ms): 112 (1.12%)
+
+--- Sinusoid tracking (joint index 6) ---
+  Ideal amplitude:    5.0000 deg
+  Measured amplitude: 5.0028 deg
+  AMPLITUDE LEAK:     -0.0028 deg  (-0.06 %)
+  Max |error|:        0.6552 deg
+  RMS error:          0.0795 deg
+  Peak demanded vel:  6.2832 deg/s
+  RMS gap:            0.0816 deg
+  K (least squares):  48.8098 /s   (tau ~ 20.5 ms)
+  Max |q_send-q_ideal|: 0.0063 deg (Euler drift)
+Tracking log written to: sinusoid_tracking.csv (10000 rows)
+Clean shutdown.
