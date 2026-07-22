@@ -185,18 +185,30 @@ This is the sole cause of the worst-case tracking error, which occurs at cycle
 It is **not** a scheduler stall: the cycle timing on those samples is nominal, and
 the reproducibility to ±1 cycle across independent runs rules out a random event.
 
-**Cause: UNVERIFIED.** Two hypotheses remain open and they make different
-predictions:
+**Cause: fixed dead time (measured).** A frequency sweep at constant amplitude
+discriminates the two hypotheses. Dead time predicts breakaway at a fixed *time*;
+breakaway friction predicts a fixed *gap*. The gap builds as `∫q̇·dt`, so the two
+predictions diverge by the frequency ratio:
 
-1. **Dead time** — the low-level servoing pipeline does not act on commands for a
-   fixed interval after mode entry. Predicts breakaway at a fixed *time* (~104 ms)
-   regardless of commanded velocity.
-2. **Breakaway friction / servo deadband** — the joint does not move until the gap
-   reaches a threshold (~0.65°). Predicts breakaway at a fixed *gap*, so doubling
-   the commanded velocity halves the time to breakaway.
+| f (Hz) | peak vel (deg/s) | breakaway cycle | gap at breakaway | dead-time predicts | friction predicts |
+|---|---|---|---|---|---|
+| 0.1 | 3.14 | 105 | 0.305° | ~105 | ~210 |
+| 0.2 | 6.28 | 106 | 0.627° | ~105 | ~105 |
+| 0.4 | 12.57 | 106 | 1.284° | ~105 | ~53 |
 
-No claim about the cause is made here until the discriminating experiment is run.
-The binary reports the breakaway cycle and the gap at breakaway on every run.
+Breakaway cycle is constant at 105–106 across a 4× velocity range; the friction
+hypothesis predicted 53 and 210 and is rejected. The gap at breakaway instead
+scales with velocity (ratio 2.05× per doubling), which is exactly `∫q̇·dt` over a
+fixed ~105 ms window — the same fact seen from the other side.
+
+**Conclusion: ~105 ms of dead time between entering `LOW_LEVEL_SERVOING` and the
+joint responding to position commands, independent of commanded velocity.**
+
+The mechanism is not localised further. Fixed dead time is consistent with
+servo-loop transport delay, servoing-mode engagement latency, or command-buffer
+fill; the sweep distinguishes "fixed time" from "fixed gap" but not among these.
+No Kortex documentation of a settling interval has been located. The claim is the
+measured behaviour, not its internal cause.
 
 **Consequence for layers above.** Until this is characterised, the first ~150 ms
 after entering low-level servoing must be treated as unusable for control. Any
@@ -259,7 +271,7 @@ could not have revealed the leak.
 ## Timing
 
 Across the three commanded-anchor runs: mean cycle 1000.0 µs; cycles over 1.1 ms
-**0.31 %, 2.24 %, 2.37 %, 2.95 %**; worst case ~4.7 ms. `Refresh()` round-trip: mean
+**2.24 %, 2.95 %, 2.37 %**; worst case ~4.7 ms. `Refresh()` round-trip: mean
 ~383 µs, worst case ~4.7 ms — the outliers are in the network call, not in local
 compute, and the cycle-level and work-level outliers are the same events.
 
@@ -280,9 +292,12 @@ data already on disk.
 
 ## Open questions
 
-1. **Cause of the ~104-cycle startup transient** — dead time vs breakaway
-   friction. Discriminating experiment defined above; not yet run. Highest
-   priority, because it bounds how any higher layer may start.
+1. **Mechanism of the ~105 ms startup dead time.** Established as fixed dead
+   time (not friction) by the frequency sweep above. Whether it is servo-loop
+   transport delay, mode-engagement latency, or buffer fill is not resolved, and
+   no Kortex documentation of a settling interval has been found. Lower priority
+   now that its *behaviour* is characterised: higher layers ramp in from rest
+   regardless of the internal cause.
 2. Does low-level position mode expect a velocity feedforward field alongside
    position? Unverified against Kortex documentation.
 3. Kortex `position()` wrapping convention — unverified. Currently handled by
